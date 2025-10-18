@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptGUI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="desktop">
+        <!-- Desktop content will be dynamically generated here -->
+    </div>
+
+    <!-- Context menu -->
+    <div id="context-menu" class="hidden">
+        <ul>
+            <li id="menu-send-to-llm">Send to Default LLM</li>
+            <li id="menu-send-to-gpt">Send to ChatGPT</li>
+            <li id="menu-send-to-claude">Send to Claude</li>
+            <li id="menu-send-to-gemini">Send to Gemini</li>
+            <li id="menu-rename">Rename</li>
+            <li id="menu-delete">Delete</li>
+            <li id="menu-new-file">Create New File</li>
+            <li id="menu-new-folder">Create New Folder</li>
+        </ul>
+    </div>
+
+    <!-- Modal for editing file content -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Edit File</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <textarea id="file-content"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="save-file">Save</button>
+                <button id="cancel-edit">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for creating/renaming files and folders -->
+    <div id="name-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="name-modal-title">Create New</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="item-name" placeholder="Enter name">
+                <div id="item-type-container" class="hidden">
+                    <label for="item-type">File Type:</label>
+                    <select id="item-type">
+                        <option value="file">Text File</option>
+                        <option value="chat">Chat Window</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-name">Confirm</button>
+                <button id="cancel-name">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Window Template -->
+    <div id="chat-window-template" class="hidden">
+        <div class="chat-window">
+            <div class="chat-header">
+                <div class="chat-title">Chat Window</div>
+                <div class="chat-controls">
+                    <button class="chat-minimize">_</button>
+                    <button class="chat-close">×</button>
+                </div>
+            </div>
+            <div class="chat-messages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+            <div class="chat-input-container">
+                <select class="chat-model-select">
+                    <option value="default">Default LLM</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="claude">Claude</option>
+                    <option value="gemini">Gemini</option>
+                </select>
+                <textarea class="chat-input" placeholder="Type your message here..."></textarea>
+                <button class="chat-send">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LLM API Configuration Modal -->
+    <div id="api-config-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>API Configuration</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="openai">OpenAI</button>
+                    <button class="tab-button" data-tab="claude">Claude</button>
+                    <button class="tab-button" data-tab="gemini">Gemini</button>
+                </div>
+                
+                <!-- OpenAI Config Tab -->
+                <div class="tab-content active" id="openai-tab">
+                    <label for="openai-api-key">OpenAI API Key:</label>
+                    <input type="password" id="openai-api-key" placeholder="Enter your OpenAI API key">
+                    
+                    <label for="openai-model-select">Default Model:</label>
+                    <select id="openai-model-select">
+                        <option value="gpt-4o">GPT-4o</option>
+                        <option value="o1">o1</option>
+                        <option value="o1-mini">o1-mini</option>
+                    </select>
+                </div>
+                
+                <!-- Claude Config Tab -->
+                <div class="tab-content" id="claude-tab">
+                    <label for="claude-api-key">Anthropic API Key:</label>
+                    <input type="password" id="claude-api-key" placeholder="Enter your Anthropic API key">
+                    
+                    <label for="claude-model-select">Default Model:</label>
+                    <select id="claude-model-select">
+                        <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                        <option value="claude-3.5-sonnet-20240229">Claude 3.5 Sonnet</option>
+                        <option value="claude-3.7-sonnet-20240229">Claude 3.7 Sonnet</option>
+                    </select>
+                </div>
+                
+                <!-- Gemini Config Tab -->
+                <div class="tab-content" id="gemini-tab">
+                    <label for="gemini-api-key">Google AI API Key:</label>
+                    <input type="password" id="gemini-api-key" placeholder="Enter your Google AI API key">
+                    
+                    <label for="gemini-model-select">Default Model:</label>
+                    <select id="gemini-model-select">
+                        <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                        <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-api-config">Save</button>
+                <button id="cancel-api-config">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <div class="loading-text">Getting response from LLM...</div>
+    </div>
+
+    <div class="toolbar">
+        <button id="config-button">⚙️ API Config</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
