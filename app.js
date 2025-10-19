@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveApiConfigBtn = document.getElementById('save-api-config');
     const cancelApiConfigBtn = document.getElementById('cancel-api-config');
     const configButton = document.getElementById('config-button');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
     
     // State variables
     let nextId = 1;
@@ -61,15 +62,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let apiConfig = {
         openai: {
             apiKey: '',
-            model: 'gpt-4o'
+            model: 'gpt-5'
         },
         claude: {
             apiKey: '',
-            model: 'claude-3.5-sonnet-20240229'
+            model: 'claude-4.5-sonnet'
         },
         gemini: {
             apiKey: '',
-            model: 'gemini-1.5-pro'
+            model: 'gemini-2.5-pro'
         },
         defaultProvider: 'openai'
     };
@@ -112,6 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
         saveApiConfigBtn.addEventListener('click', saveApiConfiguration);
         cancelApiConfigBtn.addEventListener('click', closeAllModals);
         configButton.addEventListener('click', openApiConfigModal);
+        
+        // Dark mode toggle
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+        loadDarkModePreference();
         
         // Tab switching in API config modal
         tabButtons.forEach(button => {
@@ -245,6 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
         itemElement.addEventListener('mousedown', (e) => handleMouseDown(e, item, itemElement));
         
         container.appendChild(itemElement);
+        
+        // Add creation animation
+        itemElement.classList.add('file-creating');
+        setTimeout(() => {
+            itemElement.classList.remove('file-creating');
+        }, 300);
     }
 
     function openFolder(folder) {
@@ -1142,6 +1153,26 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error(`Error sending prompt to ${provider}:`, error);
             throw error;
+        }
+    }
+
+    // Dark mode functions
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        
+        // Update button icon
+        darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+        
+        // Save preference
+        localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+    }
+    
+    function loadDarkModePreference() {
+        const darkMode = localStorage.getItem('darkMode');
+        if (darkMode === 'enabled') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.textContent = '☀️';
         }
     }
 
