@@ -548,6 +548,13 @@ input, select {
     line-height: 1.5;
 }
 
+.chat-timestamp {
+    font-size: 11px;
+    opacity: 0.6;
+    margin-top: 4px;
+    display: block;
+}
+
 .user-message {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;

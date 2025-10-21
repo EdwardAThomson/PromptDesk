@@ -569,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Load previous chat history
             if (chatItem.chatHistory && chatItem.chatHistory.length > 0) {
                 chatItem.chatHistory.forEach(msg => {
-                    addMessageToChat(chatItem, chatMessages, msg.content, msg.role, false);
+                    addMessageToChat(chatItem, chatMessages, msg.content, msg.role, false, msg.timestamp);
                 });
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
@@ -578,26 +578,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function addMessageToChat(chatItem, chatMessagesElement, message, role, saveToHistory = true) {
+    function addMessageToChat(chatItem, chatMessagesElement, message, role, saveToHistory = true, timestamp = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${role}-message`;
-        messageDiv.textContent = message;
+        
+        // Create message content
+        const messageText = document.createElement('div');
+        messageText.textContent = message;
+        messageDiv.appendChild(messageText);
+        
+        // Add timestamp only if we have one
+        if (timestamp || saveToHistory) {
+            const timestampDiv = document.createElement('span');
+            timestampDiv.className = 'chat-timestamp';
+            const time = timestamp ? new Date(timestamp) : new Date();
+            timestampDiv.textContent = formatTime(time);
+            messageDiv.appendChild(timestampDiv);
+            
+            // Save to history with timestamp
+            if (saveToHistory) {
+                if (!chatItem.chatHistory) {
+                    chatItem.chatHistory = [];
+                }
+                
+                chatItem.chatHistory.push({
+                    role,
+                    content: message,
+                    timestamp: time.toISOString()
+                });
+                
+                saveItem(chatItem);
+            }
+        }
         
         chatMessagesElement.appendChild(messageDiv);
         chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+    }
+    
+    function formatTime(date) {
+        const now = new Date();
+        const messageDate = new Date(date);
         
-        // Save to history
-        if (saveToHistory) {
-            if (!chatItem.chatHistory) {
-                chatItem.chatHistory = [];
+        // Check if message is from today
+        const isToday = now.toDateString() === messageDate.toDateString();
+        
+        // Check if message is from yesterday
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const isYesterday = yesterday.toDateString() === messageDate.toDateString();
+        
+        // Format time
+        let hours = messageDate.getHours();
+        const minutes = messageDate.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0 should be 12
+        const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+        const timeStr = `${hours}:${minutesStr} ${ampm}`;
+        
+        // Add date context if not today
+        if (isToday) {
+            return timeStr;
+        } else if (isYesterday) {
+            return `Yesterday ${timeStr}`;
+        } else {
+            // Show date for older messages
+            const month = messageDate.getMonth() + 1;
+            const day = messageDate.getDate();
+            const year = messageDate.getFullYear();
+            const currentYear = now.getFullYear();
+            
+            // Only show year if different from current year
+            if (year === currentYear) {
+                return `${month}/${day} ${timeStr}`;
+            } else {
+                return `${month}/${day}/${year} ${timeStr}`;
             }
-            
-            chatItem.chatHistory.push({
-                role,
-                content: message
-            });
-            
-            saveItem(chatItem);
         }
     }
 
