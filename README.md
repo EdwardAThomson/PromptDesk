@@ -16,7 +16,7 @@ PromptDesk uses a **single-page HTML + JS + CSS** architecture:
 - `app.js` — handles all logic (file system, chat UI, API calls, persistence).  
 - `styles.css` — minimal styling for draggable windows and modals.  
 
-All files and settings are stored in `localStorage` under the `promptdesk_data` key.
+All data is stored in `localStorage`: files and folders under the `desktop_items` key, API configuration (keys + selected models) under `llm_api_config`, and the theme preference under `darkMode`.
 
 ## 🧭 Usage
 
@@ -46,6 +46,6 @@ All files and settings are stored in `localStorage` under the `promptdesk_data` 
 
     - Right-click → “Create New File” or “Create Folder.”
 
-    - Double-click a file to edit, or right-click to “Send to GPT/Claude/Gemini.”
+    - Double-click a file to edit, or right-click to “Send to LLM” (uses your configured provider).
 
    
